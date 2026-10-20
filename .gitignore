@@ -1,0 +1,10 @@
+# File creati da scripts/install.sh e dal server: grandi (decine di GB), non vanno su git.
+# Senza "/" finale, così sono esclusi anche se sono collegamenti simbolici.
+/vllm-env
+/uv-bin
+/uv-python
+/cache
+/hf
+/models
+/logs
+__pycache__/

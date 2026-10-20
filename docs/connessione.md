@@ -19,22 +19,27 @@ di login e porta la porta 8000 del nodo GPU sulla porta **8001** del PC.
 Sul cluster (nodo di login):
 
 ```bash
-cd /scratch.hpc/fabio.ciraci2/GPULLM
+cd /scratch.hpc/$USER                    # in scratch, non nella home: servono ~30 GB
 git clone https://github.com/FabioC-alt/ClusterAgent.git
-bash ClusterAgent/scripts/install.sh     # alla fine deve stampare INSTALL OK
+cd ClusterAgent
+bash scripts/install.sh                  # alla fine deve stampare INSTALL OK
 ```
 
-Se l'ambiente e il modello sono già installati (come nel nostro caso), basta il `git clone`.
+Ambiente Python, modello, cache e log vengono creati **dentro la cartella della
+repo** (`vllm-env/`, `models/`, `cache/`, `hf/`, `logs/`, ...). Il file
+`.gitignore` li esclude da git.
 
 ---
 
 ## 1. Avviare il modello (cluster)
 
+Sempre dalla cartella principale della repo:
+
 ```bash
-cd /scratch.hpc/fabio.ciraci2/GPULLM
-sbatch ClusterAgent/scripts/llm.sbatch   # stampa: Submitted batch job NUMERO
+cd /scratch.hpc/$USER/ClusterAgent
+sbatch scripts/llm.sbatch                # stampa: Submitted batch job NUMERO
 squeue -u $USER                          # stato del job e nodo assegnato
-tail -f llm-NUMERO.log                   # attendi "Application startup complete"
+tail -f logs/llm-NUMERO.log              # attendi "Application startup complete"
 ```
 
 L'avvio richiede 2–5 minuti. Poi premi Ctrl+C: il server continua a girare.
@@ -46,7 +51,7 @@ Il nodo di login non conosce il nome dei nodi GPU, quindi serve l'IP.
 Lo script lo scrive all'inizio del log:
 
 ```bash
-grep "NODE IP" llm-NUMERO.log
+grep "NODE IP" logs/llm-NUMERO.log
 ```
 
 Se ci sono più indirizzi, prova il primo. Per verificare che il modello risponda:

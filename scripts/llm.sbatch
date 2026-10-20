@@ -1,16 +1,27 @@
 #!/bin/bash
 # Avvia il server vLLM (API compatibile OpenAI) su un nodo GPU.
-# Uso, dal nodo di login:  sbatch scripts/llm.sbatch
+# Uso: dalla cartella principale della repo, dopo install.sh:
+#   cd ClusterAgent && sbatch scripts/llm.sbatch
 #SBATCH --job-name=llm
 #SBATCH --partition=l40s
 #SBATCH --gres=gpu:1
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=64G
 #SBATCH --time=08:00:00
-#SBATCH --output=/scratch.hpc/fabio.ciraci2/GPULLM/llm-%j.log
+#SBATCH --output=logs/llm-%j.log
 
-D=/scratch.hpc/fabio.ciraci2/GPULLM
-MODEL_DIR=$D/models/Qwen3-8B
+# Slurm copia lo script altrove prima di eseguirlo, quindi non possiamo ricavare
+# la cartella della repo dalla posizione dello script. Usiamo la cartella da cui
+# è stato lanciato sbatch (SLURM_SUBMIT_DIR): per questo va lanciato dalla repo.
+# Anche il percorso relativo di --output (logs/) parte da quella cartella.
+D=${LLM_DIR:-$SLURM_SUBMIT_DIR}
+MODEL_DIR=${MODEL_DIR:-$D/models/Qwen3-8B}
+
+if [ ! -x "$D/vllm-env/bin/vllm" ]; then
+  echo "ERRORE: vLLM non trovato in $D/vllm-env."
+  echo "Lancia sbatch dalla cartella principale della repo, dopo scripts/install.sh."
+  exit 1
+fi
 
 # Stampa nome e IP del nodo all'inizio del log: servono per il tunnel SSH,
 # perché il nodo di login non risolve il nome dei nodi GPU.

@@ -1,15 +1,17 @@
 #!/bin/bash
-# Installa vLLM e scarica il modello nella cartella scratch del cluster.
+# Installa vLLM e scarica il modello dentro la cartella della repo.
 # Da lanciare UNA SOLA VOLTA sul nodo di login:  bash scripts/install.sh
+# Clona la repo in scratch, non nella home: servono circa 30 GB.
 set -euo pipefail
 
-# Cartella di lavoro: tutto (Python, pacchetti, cache, modelli) resta qui,
-# così non si riempie la home (che ha una quota piccola).
-D=${LLM_DIR:-/scratch.hpc/$USER/GPULLM}
+# Cartella di lavoro = cartella principale della repo (quella che contiene scripts/),
+# ricavata dalla posizione di questo script. Tutto (Python, pacchetti, cache,
+# modelli, log) finisce lì dentro; .gitignore esclude questi file da git.
+D=${LLM_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}
 MODEL=${MODEL:-Qwen/Qwen3-8B}
-mkdir -p "$D" && cd "$D"
+mkdir -p "$D/logs" && cd "$D"
 
-# Cache di uv e Python scaricato da uv: anche questi in scratch.
+# Cache di uv e Python scaricato da uv: anche questi nella repo, non nella home.
 export UV_CACHE_DIR=$D/cache/uv
 export UV_PYTHON_INSTALL_DIR=$D/uv-python
 export HF_HOME=$D/hf
