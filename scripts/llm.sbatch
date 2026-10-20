@@ -1,6 +1,6 @@
 #!/bin/bash
-# Avvia il server vLLM (API compatibile OpenAI) su un nodo GPU.
-# Uso: dalla cartella principale della repo, dopo install.sh:
+# Starts the vLLM server (OpenAI-compatible API) on a GPU node.
+# Usage: from the repository root, after install.sh:
 #   cd ClusterAgent && sbatch scripts/llm.sbatch
 #SBATCH --job-name=llm
 #SBATCH --partition=l40s
@@ -10,46 +10,46 @@
 #SBATCH --time=08:00:00
 #SBATCH --output=logs/llm-%j.log
 
-# Slurm copia lo script altrove prima di eseguirlo, quindi non possiamo ricavare
-# la cartella della repo dalla posizione dello script. Usiamo la cartella da cui
-# è stato lanciato sbatch (SLURM_SUBMIT_DIR): per questo va lanciato dalla repo.
-# Anche il percorso relativo di --output (logs/) parte da quella cartella.
+# Slurm copies this script elsewhere before running it, so the repository folder
+# cannot be derived from the script's location. We use the folder sbatch was
+# launched from (SLURM_SUBMIT_DIR): that is why it must be launched from the repo.
+# The relative --output path (logs/) also starts from that folder.
 D=${LLM_DIR:-$SLURM_SUBMIT_DIR}
 MODEL_DIR=${MODEL_DIR:-$D/models/Qwen3-8B}
 
 if [ ! -x "$D/vllm-env/bin/vllm" ]; then
-  echo "ERRORE: vLLM non trovato in $D/vllm-env."
-  echo "Lancia sbatch dalla cartella principale della repo, dopo scripts/install.sh."
+  echo "ERROR: vLLM not found in $D/vllm-env."
+  echo "Run sbatch from the repository root, after scripts/install.sh."
   exit 1
 fi
 
-# Stampa nome e IP del nodo all'inizio del log: servono per il tunnel SSH,
-# perché il nodo di login non risolve il nome dei nodi GPU.
+# Print node name and IP at the top of the log: they are needed for the SSH tunnel,
+# because the login node cannot resolve GPU node names.
 echo "NODE: $(hostname)"
 echo "NODE IP: $(hostname -I)"
 
-# Usa l'ambiente creato da install.sh.
+# Use the environment created by install.sh.
 export PATH=$D/vllm-env/bin:$PATH
 
-# Tutte le cache in scratch, non nella home (quota piena).
+# Keep all caches inside the repository, not in home (the home quota is small).
 export HF_HOME=$D/hf
 export XDG_CACHE_HOME=$D/cache
 export VLLM_CACHE_ROOT=$D/cache/vllm
 export TRITON_CACHE_DIR=$D/cache/triton
 export TORCHINDUCTOR_CACHE_DIR=$D/cache/inductor
 
-# Niente statistiche d'uso inviate a vLLM.
+# Do not send usage statistics to vLLM.
 export VLLM_NO_USAGE_STATS=1
-# Il campionatore FlashInfer richiede nvcc, che sul cluster non c'è:
-# usiamo quello interno di vLLM.
+# The FlashInfer sampler needs nvcc, which the cluster does not have:
+# use vLLM's built-in sampler instead.
 export VLLM_USE_FLASHINFER_SAMPLER=0
 
-# --served-model-name qwen          nome del modello nelle API
-# --host 0.0.0.0 --port 8000        accetta connessioni da altri nodi sulla porta 8000
-# --max-model-len 16384             lunghezza massima di contesto (token)
-# --enable-auto-tool-choice         abilita il tool calling (richiesto da Open WebUI e dall'agente)
-# --tool-call-parser hermes         formato delle chiamate ai tool usato da Qwen3
-# --reasoning-parser qwen3          separa il "thinking" (<think>...</think>) dalla risposta
+# --served-model-name qwen          model name exposed by the API
+# --host 0.0.0.0 --port 8000        accept connections from other nodes on port 8000
+# --max-model-len 16384             maximum context length (tokens)
+# --enable-auto-tool-choice         enable tool calling (needed by Open WebUI and the agent)
+# --tool-call-parser hermes         tool-call format used by Qwen3
+# --reasoning-parser qwen3          separate the "thinking" (<think>...</think>) from the answer
 vllm serve "$MODEL_DIR" \
   --served-model-name qwen \
   --host 0.0.0.0 --port 8000 \

@@ -1,5 +1,5 @@
-# File creati da scripts/install.sh e dal server: grandi (decine di GB), non vanno su git.
-# Senza "/" finale, così sono esclusi anche se sono collegamenti simbolici.
+# Files created by scripts/install.sh and by the server: large (tens of GB), not for git.
+# No trailing "/", so they are excluded even when they are symbolic links.
 /vllm-env
 /uv-bin
 /uv-python
