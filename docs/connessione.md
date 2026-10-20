@@ -33,17 +33,31 @@ repo** (`vllm-env/`, `models/`, `cache/`, `hf/`, `logs/`, ...). Il file
 
 ## 1. Avviare il modello (cluster)
 
-Sempre dalla cartella principale della repo:
-
 ```bash
 cd /scratch.hpc/$USER/ClusterAgent
-sbatch scripts/llm.sbatch                # stampa: Submitted batch job NUMERO
+bash scripts/start.sh                    # stampa il numero del job e il percorso del log
 squeue -u $USER                          # stato del job e nodo assegnato
 tail -f logs/llm-NUMERO.log              # attendi "Application startup complete"
 ```
 
+`start.sh` funziona da qualunque cartella: trova da solo la repo, crea `logs/`
+se manca e passa a `sbatch` la cartella di lavoro (`--chdir`) e il percorso del
+log (`--output`) in forma assoluta. Il log finisce quindi sempre in
+`ClusterAgent/logs/`.
+
+Opzioni aggiuntive di `sbatch` si possono passare a `start.sh`, e scavalcano le
+righe `#SBATCH` dello script. Per esempio, per un job di 2 ore:
+
+```bash
+bash scripts/start.sh --time=02:00:00
+```
+
 L'avvio richiede 2–5 minuti. Poi premi Ctrl+C: il server continua a girare.
 Il job si ferma da solo dopo 8 ore (`--time` nello script) o con `scancel NUMERO`.
+
+> Si può ancora lanciare `sbatch scripts/llm.sbatch` a mano, ma **solo dalla
+> cartella principale della repo** e con `logs/` già esistente: altrimenti il job
+> lavora nella cartella sbagliata, oppure fallisce senza scrivere nessun log.
 
 ## 2. Trovare l'IP del nodo GPU (cluster)
 

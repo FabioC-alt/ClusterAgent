@@ -1,6 +1,8 @@
 #!/bin/bash
 # Starts the vLLM server (OpenAI-compatible API) on a GPU node.
-# Usage: from the repository root, after install.sh:
+# Recommended usage, from any folder, after install.sh:
+#   bash scripts/start.sh
+# It also works directly, but only from the repository root:
 #   cd ClusterAgent && sbatch scripts/llm.sbatch
 #SBATCH --job-name=llm
 #SBATCH --partition=l40s
@@ -11,15 +13,17 @@
 #SBATCH --output=logs/llm-%j.log
 
 # Slurm copies this script elsewhere before running it, so the repository folder
-# cannot be derived from the script's location. We use the folder sbatch was
-# launched from (SLURM_SUBMIT_DIR): that is why it must be launched from the repo.
-# The relative --output path (logs/) also starts from that folder.
-D=${LLM_DIR:-$SLURM_SUBMIT_DIR}
+# cannot be derived from the script's location. We use the job's working folder
+# ($PWD) instead: start.sh sets it to the repository root with --chdir; without
+# --chdir, Slurm uses the folder sbatch was launched from.
+# The #SBATCH --output line above is only a fallback: start.sh overrides it
+# with an absolute path.
+D=${LLM_DIR:-$PWD}
 MODEL_DIR=${MODEL_DIR:-$D/models/Qwen3-8B}
 
 if [ ! -x "$D/vllm-env/bin/vllm" ]; then
   echo "ERROR: vLLM not found in $D/vllm-env."
-  echo "Run sbatch from the repository root, after scripts/install.sh."
+  echo "Run scripts/install.sh first, then submit with: bash scripts/start.sh"
   exit 1
 fi
 
