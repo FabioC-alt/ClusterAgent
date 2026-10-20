@@ -5,7 +5,7 @@ set -euo pipefail
 
 # Cartella di lavoro: tutto (Python, pacchetti, cache, modelli) resta qui,
 # così non si riempie la home (che ha una quota piccola).
-D=${LLM_DIR:-/scratch.hpc/fabio.ciraci2/GPULLM}
+D=${LLM_DIR:-/scratch.hpc/$USER/GPULLM}
 MODEL=${MODEL:-Qwen/Qwen3-8B}
 mkdir -p "$D" && cd "$D"
 
