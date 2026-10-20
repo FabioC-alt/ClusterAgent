@@ -102,7 +102,7 @@ basta avviare il job (punto 1) e il tunnel (punto 3).
 | `Bad local forwarding specification` | Spazi nella parte `-L` | Scriverla tutta attaccata: `8001:IP:8000` |
 | `curl` in PowerShell: "remote name could not be resolved" | Comando lanciato sul PC invece che sul cluster | I comandi del punto 2 vanno eseguiti sul cluster |
 | `localhost:3000` non raggiungibile | Open WebUI ancora in avvio | Attendere che `docker ps` mostri `(healthy)` |
-| In Open WebUI compare un modello "llama" e non "qwen" | Open WebUI punta alla porta 8000 del PC, dove gira un altro servizio | Impostare l'URL su `:8001` (punto 4a) |
+| In Open WebUI compare un modello "llama" e non "qwen" | Open WebUI punta alla porta 8000 del PC, dove gira un altro servizio | Impostare l'URL su `:8001` (punto 4) |
 | `400 Bad Request` / `"auto" tool choice requires --enable-auto-tool-choice` | Tool calling non attivo in vLLM | Già risolto in `llm.sbatch` (`--enable-auto-tool-choice --tool-call-parser hermes`) |
 | `Disk quota exceeded` nel log | Cache scritte nella home | Già risolto: lo script sposta tutte le cache in scratch |
 | `Python.h: No such file or directory` | Python di sistema senza header | Già risolto: `install.sh` usa il Python scaricato da uv |
