@@ -4,7 +4,7 @@ Schema generale:
 
 ```
 PC Windows                     nodo di login                  nodo GPU
-(Open WebUI / chat.html)  ──SSH──▶  slogin2  ──────────────▶  vLLM :8000
+(Open WebUI)              ──SSH──▶  slogin2  ──────────────▶  vLLM :8000
 localhost:8001 ◀───────────── tunnel SSH ─────────────────────┘
 ```
 
@@ -72,7 +72,7 @@ ssh -N -L 0.0.0.0:8001:IP:8000 -l fabio.ciraci@unibo.it slogin2.disi.unibo.it
   Se Windows Firewall chiede il permesso, consenti solo le reti private.
 - Prova: apri http://localhost:8001/v1/models nel browser, deve comparire `qwen`.
 
-## 4a. Chattare con Open WebUI (Docker)
+## 4. Chattare con Open WebUI (Docker)
 
 Prima volta: crea il container.
 
@@ -91,11 +91,6 @@ Poi apri http://localhost:3000 (al primo avvio può servire 1–2 minuti).
 
 Le volte successive il container riparte da solo con Docker Desktop:
 basta avviare il job (punto 1) e il tunnel (punto 3).
-
-## 4b. Alternative senza Docker
-
-- `scripts/chat.html`: doppio clic, si apre nel browser e usa http://localhost:8001/v1.
-- `scripts/chat.py`: chat da terminale (`pip install openai`, poi `python chat.py`).
 
 ---
 
